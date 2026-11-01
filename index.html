@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matemáticas: Runden</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#fff6d6,#d9f2ff);color:#1f2a44;min-height:100vh}
+header{text-align:center;padding:14px 10px 4px}h1{margin:0;font-size:clamp(1.6rem,5vw,2.6rem);color:#e2572b}header p{margin:.4em 0}
+main{max-width:820px;margin:0 auto;padding:10px}.card{background:#fff;border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 4px 14px #0002}
+h2{margin:.2em 0 .5em;font-size:1.3rem}
+.btn,.tab{font-size:1.2rem;font-weight:700;border:none;border-radius:14px;padding:12px;cursor:pointer;min-height:52px;color:#fff}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.btn{flex:1 1 150px}
+.green{background:#22a35a}.orange{background:#f08a24}.purple{background:#7b4fd6}.gray{background:#6b7280}.blue{background:#2b8de2}
+button:focus-visible,input:focus-visible{outline:4px solid #ffbf00;outline-offset:2px}
+.topics label{display:flex;align-items:center;gap:10px;font-size:1.25rem;padding:10px;background:#eef1f6;border-radius:14px;margin:6px 0;cursor:pointer}
+.topics input{width:26px;height:26px}.ck{color:#22a35a;font-weight:800}
+.hidden{display:none}
+.tw{overflow-x:auto}table.nb{width:100%;border-collapse:separate;border-spacing:4px;min-width:300px}.zt{font-size:clamp(1.8rem,7vw,2.6rem);font-weight:800;text-align:center;background:#ffe08a;border-radius:14px;padding:8px;margin:8px 0}.dg{color:#7b4fd6;text-decoration:underline}.dr{color:#e2572b;background:#ffe9d6;border-radius:4px}
+table.nb th{background:#2b8de2;color:#fff;border-radius:10px;padding:8px 2px;font-size:1.15rem}
+table.nb th.z,table.nb td.z{background:#ffe08a;color:#1f2a44}
+table.nb td{text-align:center;font-size:1.3rem;font-weight:700;background:#eef1f6;border-radius:10px;padding:6px 2px}
+table.nb input{width:100%;font-size:1.25rem;font-weight:700;text-align:center;border:2px solid #9bb;border-radius:8px;padding:8px 2px}
+td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{display:block;font-size:.95rem;color:#c7362b}
+.stats{display:flex;justify-content:space-around;font-size:1.15rem;font-weight:700;flex-wrap:wrap;gap:6px}
+.fb{min-height:2.2em;text-align:center;font-size:1.25rem;font-weight:700;margin-top:8px}.good{color:#1a8a4a}.bad{color:#c7362b}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}.tab{background:#eef1f6;color:#1f2a44;flex:1 1 70px}.tab[aria-pressed=true]{background:#7b4fd6;color:#fff}
+.flash{background:#f6f2ff;border-radius:16px;padding:14px;margin-top:10px;font-size:1.15rem}.flash b.big{font-size:2rem;color:#7b4fd6}
+.q{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:800;text-align:center;margin:10px 0}
+#dAns{font-size:2.2rem;width:100%;text-align:center;border:3px solid #2b8de2;border-radius:14px;padding:6px}
+#timer{color:#c7362b}.legend{font-size:1.05rem;line-height:1.6}
+.demoIn{font-size:1.4rem;width:140px;text-align:center;border:2px solid #2b8de2;border-radius:10px;padding:8px}
+</style></head><body>
+<header><h1>🎯 Matemáticas: Runden</h1>
+<p>Aprende a <b>redondear</b> la <b>Zahl des Tages</b> (número del día) a decenas, centenas, millares y más.</p>
+<p>¡Hola, <span class="nm">amiguito</span>! <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar nombre</a></p></header>
+<main>
+<section id="home" class="card">
+<h2>1. Elige los números</h2>
+<div class="topics" id="topics"></div>
+<h2 style="margin-top:14px">2. ¿Qué quieres hacer?</h2>
+<div class="row"><button class="btn purple" onclick="show('study')">📖 Estudiar</button><button class="btn green" onclick="startPractice()">✏️ Practicar</button><button class="btn orange" onclick="startChallenge()">⏱️ Desafío 60 s</button></div>
+<p id="best" style="font-size:1.1rem;text-align:center"></p>
+<p id="homeChecks" style="text-align:center;font-size:1.05rem"></p>
+<div class="legend"><b>Leyenda:</b><br>
+<b>Z</b> = Zehner (decenas, 10) · <b>H</b> = Hunderter (centenas, 100) · <b>T</b> = Tausender (unidades de millar, 1000)<br>
+<b>ZT</b> = Zehntausender (decenas de millar, 10 000) · <b>HT</b> = Hunderttausender (centenas de millar, 100 000)<br>
+👉 Mira la cifra de la <b>derecha</b>: 0–4 se queda, 5–9 sube.</div>
+</section>
+
+<section id="study" class="card hidden">
+<h2>📖 Estudiar</h2>
+<div class="tabs" id="tabs"></div>
+<div class="flash" id="flash"></div>
+<h2 style="margin-top:16px">Ejemplos completos</h2>
+<div class="row" id="exBtns"></div>
+<p>O escribe tu número: <input class="demoIn" id="demoIn" type="number" inputmode="numeric" min="1" max="999999"> <button class="btn blue" style="flex:0 0 auto" onclick="demo(+demoIn.value)">Ver</button></p>
+<div class="tw"><table class="nb" id="demoT"></table></div>
+<p id="demoNote" class="flash"></p>
+<div class="row"><button class="btn gray" onclick="show('home')">🏠 Inicio</button></div>
+</section>
+
+<section id="practice" class="card hidden">
+<h2>✏️ Practicar</h2>
+<p>Redondea la <b>Zahl des Tages</b> en cada fila. 👉 Mira la cifra de la derecha.</p>
+<div class="stats"><span>✅ Tablas correctas: <span id="pScore">0</span></span><span>🔥 Racha: <span id="pStreak">0</span></span></div>
+<div class="tw"><table class="nb" id="pT"></table></div>
+<div class="fb" id="pFb"></div>
+<div class="row"><button type="button" class="btn green" id="pCheck" onclick="checkPractice()">✔️ Comprobar</button><button type="button" class="btn blue" id="pNext" onclick="goNextPractice()">➡️ Siguiente</button><button type="button" class="btn gray" onclick="show('home')">🏠 Inicio</button></div>
+</section>
+
+<section id="challenge" class="card hidden">
+<h2>⏱️ Desafío 60 s</h2>
+<div class="stats"><span id="timer">⏱️ 60</span><span>⭐ Puntos: <span id="dScore">0</span></span><span>🔥 Racha: <span id="dStreak">0</span></span><span>❌ Errores: <span id="dErr">0</span></span></div>
+<div id="dPlay"><div class="q" id="dQ"></div>
+<form id="dForm"><input id="dAns" type="number" inputmode="numeric" autocomplete="off"><div class="row"><button class="btn green" type="submit">Comprobar</button></div></form></div>
+<div class="fb" id="dFb"></div>
+<div class="row"><button class="btn orange hidden" id="dAgain" onclick="startChallenge()">🔁 Otra vez</button><button class="btn gray" onclick="stopChallenge();show('home')">🏠 Inicio</button></div>
+</section>
+</main>
+<script>window.ASK_NAME=true;</script>
+<div id="nmBox" style="display:none;position:fixed;inset:0;background:rgba(31,42,68,.55);z-index:99;align-items:center;justify-content:center;padding:16px">
+<form id="nmForm" style="background:#fff;border-radius:20px;padding:24px;max-width:420px;width:100%;text-align:center;font-family:inherit">
+<p style="font-size:1.4rem;font-weight:700;margin:0 0 12px">👋 ¡Hola! ¿Cómo te llamas?</p>
+<p style="font-size:1.05rem;margin:0 0 12px">Escribe tu nombre o tu apodo</p>
+<input id="nmIn" maxlength="20" autocomplete="off" style="width:100%;font-size:1.4rem;padding:12px;border:2px solid #2b8de2;border-radius:12px;text-align:center">
+<button type="submit" style="width:100%;font-size:1.3rem;padding:14px;margin-top:12px;border:0;border-radius:14px;background:#22a35a;color:#fff;font-weight:700;cursor:pointer">¡Listo! ✅</button>
+</form></div>
+<script>
+(function(){
+const K="sociales_nombre";
+function clean(s){return (s||"").replace(/[<>"]/g,"").trim().slice(0,20)}
+try{const q=clean(new URLSearchParams(location.search).get("nombre"));if(q)localStorage.setItem(K,q)}catch(e){}
+window.NM=function(){try{return clean(localStorage.getItem(K))||"amiguito"}catch(e){return "amiguito"}};
+function apply(){document.querySelectorAll(".nm").forEach(e=>e.textContent=NM());
+const n=(function(){try{return clean(localStorage.getItem(K))}catch(e){return ""}})();
+document.querySelectorAll("a[data-app]").forEach(a=>{a.href=a.dataset.app+(n?"?nombre="+encodeURIComponent(n):"")})}
+window.cambiarNombre=function(){const b=document.getElementById("nmBox"),i=document.getElementById("nmIn");i.value=NM()=="amiguito"?"":NM();b.style.display="flex";i.focus()};
+document.getElementById("nmForm").onsubmit=function(ev){ev.preventDefault();const v=clean(document.getElementById("nmIn").value);if(!v){document.getElementById("nmIn").focus();return}
+try{localStorage.setItem(K,v)}catch(e){}document.getElementById("nmBox").style.display="none";apply()};
+apply();
+if(window.ASK_NAME&&NM()=="amiguito")cambiarNombre();
+})();
+</script>
+<script>
+window.ASK_NAME=true;
+const PL=[["Z",10],["H",100],["T",1000],["ZT",10000],["HT",100000]];
+const INFO={
+Z:["Zehner","Decenas (10)","Mira las <b>unidades</b>. 0–4: la decena se queda; 5–9: la decena sube 1. Las unidades se vuelven 0.","8237 → <b>8240</b> (unidades 7 ≥ 5, sube). 8233 → 8230."],
+H:["Hunderter","Centenas (100)","Mira las <b>decenas</b>. 0–4: la centena se queda; 5–9: sube 1. Decenas y unidades se vuelven 0.","8237 → <b>8200</b> (decenas 3 &lt; 5, se queda). 8257 → 8300."],
+T:["Tausender","Unidades de millar (1000)","Mira las <b>centenas</b>. 0–4: se queda; 5–9: sube 1. Todo lo de la derecha se vuelve 0.","8237 → <b>8000</b> (centenas 2 &lt; 5). 8537 → 9000."],
+ZT:["Zehntausender","Decenas de millar (10 000)","Mira las <b>unidades de millar</b>. 0–4: se queda; 5–9: sube 1. Funciona aunque el número sea pequeño.","8237 → <b>10000</b> (millares 8 ≥ 5: está más cerca de 10 000 que de 0)."],
+HT:["Hunderttausender","Centenas de millar (100 000)","Mira las <b>decenas de millar</b>. 0–4: se queda; 5–9: sube 1.","8237 → <b>0</b> (decenas de millar 0 &lt; 5: está más cerca de 0 que de 100 000). 56 000 → 100000."]};
+const PN={Z:"decenas",H:"centenas",T:"unidades de millar",ZT:"decenas de millar",HT:"centenas de millar"};
+const RN={Z:"las unidades",H:"las decenas",T:"las centenas",ZT:"las unidades de millar",HT:"las decenas de millar"};
+function roundTo(n,place){return Math.round(n/place)*place}
+function pv(k){return PL.find(p=>p[0]===k)[1]}
+function rdig(n,k){return Math.floor(n/(pv(k)/10))%10}
+function explain(k,n){const p=pv(k),d=rdig(n,k),r=roundTo(n,p),lo=Math.floor(n/p)*p;
+return `Redondear ${n} a ${PN[k]} (${k}): la cifra de ${RN[k]} es <b>${d}</b>. ${d>=5?"Como es 5 o más, se redondea <b>hacia arriba</b>":"Como es 4 o menos, se redondea <b>hacia abajo</b>"}: ${n} está entre ${lo} y ${lo+p} → <b>${r}</b>.`}
+function mark(n,k){const s=String(n),p=String(pv(k)).length-1,i=s.length-p,j=i-1;// i = índice de la cifra derecha
+return [...s].map((c,x)=>x===i?`<span class="dr">${c}</span>`:x===j?`<span class="dg">${c}</span>`:c).join("")}
+const TOPICS=[["3c","Tres cifras (100–999)",100,999],["4c","Cuatro cifras (1000–9999)",1000,9999],["5c","Cinco cifras (10000–99999)",10000,99999]];
+const CK="aleman_check_runden",BK="runden_best";
+function getChecks(){try{return JSON.parse(localStorage.getItem(CK))||[]}catch(e){return[]}}
+function renderTopics(){const c=getChecks();topics.innerHTML=TOPICS.map(t=>`<label><input type="checkbox" value="${t[0]}" ${(window._sel||["3c","4c","5c"]).includes(t[0])?"checked":""}> ${t[1]} <span class="ck">${c.includes(t[0])?"✔":""}</span></label>`).join("");
+const b=+localStorage.getItem(BK)||0;best.textContent=b?`🏆 Mejor puntaje en el Desafío: ${b}`:"🏆 Aún no tienes récord. ¡Juega el Desafío!";
+homeChecks.textContent=c.length?"✔ Dominado: "+TOPICS.filter(t=>c.includes(t[0])).map(t=>t[1]).join(", "):"Gana ✔ con 13 o más puntos y cero errores en el Desafío.";}
+function sel(){const s=[...topics.querySelectorAll("input:checked")].map(i=>i.value);window._sel=s;return s}
+function randZahl(){let s=sel();if(!s.length)s=["3c","4c","5c"];const t=TOPICS.find(x=>x[0]===s[Math.floor(Math.random()*s.length)]);
+let n=t[2]+Math.floor(Math.random()*(t[3]-t[2]+1));
+if(Math.random()<.3){const p=[10,100,1000,10000][Math.floor(Math.random()*4)];const s5=String(n);// poner un 5 en alguna posición (punto medio)
+const pos=s5.length-String(p).length+1;if(pos>=1&&pos<s5.length)n=+(s5.slice(0,pos)+"5"+s5.slice(pos+1))}
+return Math.min(Math.max(n,t[2]),t[3])}
+function show(id){["home","study","practice","challenge"].forEach(s=>document.getElementById(s).classList.toggle("hidden",s!==id));if(id==="home")renderTopics();scrollTo(0,0)}
+// Estudiar
+tabs.innerHTML=PL.map(p=>`<button class="tab" aria-pressed="false" onclick="flashOf('${p[0]}')">${p[0]}</button>`).join("");
+function flashOf(k){tabs.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-pressed",b.textContent===k));const i=INFO[k];
+flash.innerHTML=`<b class="big">${k}</b> = <i>${i[0]}</i><br><b>En español:</b> ${i[1]}<br><b>¿Cómo se redondea?</b> ${i[2]}<br><b>Ejemplo:</b> ${i[3]}`}
+flashOf("Z");
+exBtns.innerHTML=[8237,450,6500,73850,95].map(n=>`<button class="btn blue" onclick="demo(${n})">${n}</button>`).join("");
+const HEAD="<tr><th>Fila</th><th>Redondear a…</th><th class='z'>Resultado</th></tr>";
+function demo(n){if(!(n>=1&&n<=999999)){demoNote.textContent="Escribe un número entre 1 y 999999.";return}n=Math.floor(n);
+demoT.innerHTML=`<tr><th colspan="3" class="z">Zahl des Tages = ${n}</th></tr>`+HEAD+PL.map(([k,p])=>`<tr><td>${k}</td><td style="font-size:1rem">${PN[k]}<br>${mark(n,k)}</td><td class="z">${roundTo(n,p)}</td></tr>`).join("");
+demoNote.innerHTML=`<b>Truco:</b> la cifra <span class="dg">subrayada</span> es la posición que redondeas y la cifra <span class="dr">naranja</span> es la de su <b>derecha</b>. 0–4 → se queda; 5–9 → sube 1. Todo lo de la derecha se vuelve 0. Si no hay cifra (número pequeño), cuenta como 0.<br>💡 ${explain("H",n)}`}
+demo(8237);
+// Practicar
+let pN,pScoreV=0,pStreakV=0,pDone=false,pBusy=false;
+function startPractice(){if(!sel().length){alert("Elige al menos un grupo de números.");return}show("practice");newPractice()}
+function newPractice(){
+  let n,guard=0;do{n=randZahl();guard++}while(n===pN&&guard<30);
+  pN=n;pDone=false;pBusy=false;pFb.textContent="";pFb.className="fb";
+  pCheck.disabled=false;
+  const next=document.getElementById("pNext");if(next){next.className="btn blue";next.textContent="➡️ Siguiente"}
+  pT.innerHTML=`<tr><th colspan="3" class="z" style="font-size:1.5rem">Zahl des Tages = ${pN}</th></tr>`+HEAD+PL.map(([k])=>`<tr><td>${k}</td><td style="font-size:1rem">${PN[k]}</td><td id="c_${k}"><input type="number" inputmode="numeric" aria-label="${k}" id="i_${k}"></td></tr>`).join("");
+  setTimeout(()=>{const i=document.getElementById("i_Z");if(i)i.focus()},50);
+}
+function goNextPractice(){if(pBusy)return;pBusy=true;newPractice()}
+function checkPractice(){if(pDone||pBusy)return;let first=null,ok=0;
+PL.forEach(([k,p])=>{const r=roundTo(pN,p),td=document.getElementById("c_"+k),v=document.getElementById("i_"+k).value.trim();
+td.querySelector(".cv")?.remove();
+if(v!==""&&+v===r){td.className="ok";ok++}else{td.className="no";td.insertAdjacentHTML("beforeend",`<span class="cv">${r}</span>`);if(!first)first=k}});
+pDone=true;pCheck.disabled=true;
+if(!first){pScoreV++;pStreakV++;pFb.className="fb good";pFb.textContent=`🎉 ¡Excelente, ${NM()}! Todo correcto.`}
+else{pStreakV=0;pFb.className="fb bad";pFb.innerHTML=`${ok} de 5 bien. 💡 ${explain(first,pN)}`}
+pScore.textContent=pScoreV;pStreak.textContent=pStreakV;
+const next=document.getElementById("pNext");if(next){next.className="btn green";next.textContent="➡️ Siguiente número";setTimeout(()=>next.focus(),30)}
+}
+pT.addEventListener("keydown",e=>{
+  if(e.key!=="Enter")return;
+  e.preventDefault();
+  if(pDone){goNextPractice();return}
+  const inputs=[...pT.querySelectorAll("input")],cur=inputs.indexOf(e.target);
+  const empty=inputs.slice(cur+1).find(i=>i.value.trim()==="")||inputs.find(i=>i.value.trim()==="");
+  if(empty){empty.focus();return}
+  checkPractice();
+});
+// Desafío
+let dN,dK,dS,dSt,dE,dLeft,dTim,dSel,dLastK;
+function startChallenge(){dSel=sel();if(!dSel.length){alert("Elige al menos un grupo de números.");return}show("challenge");
+dS=dSt=dE=0;dLeft=60;updD();dPlay.classList.remove("hidden");dAgain.classList.add("hidden");dFb.textContent="";nextD();
+clearInterval(dTim);dTim=setInterval(()=>{dLeft--;timer.textContent="⏱️ "+dLeft;if(dLeft<=0)endChallenge()},1000)}
+function stopChallenge(){clearInterval(dTim)}
+function updD(){dScore.textContent=dS;dStreak.textContent=dSt;dErr.textContent=dE;timer.textContent="⏱️ "+dLeft}
+function nextD(){dN=randZahl();let k;do{k=PL[Math.floor(Math.random()*5)][0]}while(k===dLastK);dK=dLastK=k;
+dQ.innerHTML=`Zahl des Tages = ${dN}.<br>¿Cuál es el redondeo a <span style="color:#7b4fd6">${dK}</span>?<br><small style="font-size:1rem;font-weight:400">(${PN[dK]})</small>`;dAns.value="";dAns.focus()}
+dForm.onsubmit=e=>{e.preventDefault();if(dAns.value.trim()==="")return;const r=roundTo(dN,pv(dK));
+if(+dAns.value===r){dS++;dSt++;dFb.className="fb good";dFb.textContent="✅ ¡Bien!"}else{dE++;dSt=0;dFb.className="fb bad";dFb.innerHTML="❌ "+explain(dK,dN)}
+updD();nextD()};
+function endChallenge(){clearInterval(dTim);dPlay.classList.add("hidden");dAgain.classList.remove("hidden");
+const b=+localStorage.getItem(BK)||0;let msg=`⏰ ¡Tiempo! ${NM()}, hiciste ${dS} puntos con ${dE} errores.`;
+if(dS>b){localStorage.setItem(BK,dS);msg+=" 🏆 ¡Nuevo récord!"}
+if(dS>=13&&dE===0){const c=new Set(getChecks());dSel.forEach(t=>c.add(t));localStorage.setItem(CK,JSON.stringify([...c]));msg+=" ✔ ¡Ganaste la marca verde!"}
+else msg+=" Para ganar ✔ necesitas 13 o más puntos y cero errores.";
+dFb.className="fb good";dFb.textContent=msg}
+renderTopics();
+</script>
+</body></html>
