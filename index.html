@@ -60,7 +60,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 <section id="practice" class="card hidden">
 <h2>✏️ Practicar</h2>
 <p>Redondea la <b>Zahl des Tages</b> en cada fila. 👉 Mira la cifra de la derecha.</p>
-<div class="stats"><span>✅ Tablas correctas: <span id="pScore">0</span></span><span>🔥 Racha: <span id="pStreak">0</span></span></div>
+<div class="stats"><span>✅ Tablas correctas: <span id="pScore">0</span></span><span style="opacity:.4">|</span><span>🔥 Racha: <span id="pStreak">0</span></span></div>
 <div class="tw"><table class="nb" id="pT"></table></div>
 <div class="fb" id="pFb"></div>
 <div class="row"><button type="button" class="btn green" id="pCheck" onclick="checkPractice()">✔️ Comprobar</button><button type="button" class="btn blue" id="pNext" onclick="goNextPractice()">➡️ Siguiente</button><button type="button" class="btn gray" onclick="show('home')">🏠 Inicio</button></div>
@@ -124,7 +124,7 @@ function renderTopics(){const c=getChecks();topics.innerHTML=TOPICS.map(t=>`<lab
 const b=+localStorage.getItem(BK)||0;best.textContent=b?`🏆 Mejor puntaje en el Desafío: ${b}`:"🏆 Aún no tienes récord. ¡Juega el Desafío!";
 homeChecks.textContent=c.length?"✔ Dominado: "+TOPICS.filter(t=>c.includes(t[0])).map(t=>t[1]).join(", "):"Gana ✔ con 13 o más puntos y cero errores en el Desafío.";}
 function sel(){const s=[...topics.querySelectorAll("input:checked")].map(i=>i.value);window._sel=s;return s}
-function randZahl(){let s=sel();if(!s.length)s=["3c","4c","5c"];const t=TOPICS.find(x=>x[0]===s[Math.floor(Math.random()*s.length)]);
+function randZahl(){let s=sel();if(!s.length)s=["3c","4c","5c"];const pick=s[Math.floor(Math.random()*s.length)];const t=TOPICS.find(x=>x[0]===pick)||TOPICS[0];
 let n=t[2]+Math.floor(Math.random()*(t[3]-t[2]+1));
 if(Math.random()<.3){const p=[10,100,1000,10000][Math.floor(Math.random()*4)];const s5=String(n);// poner un 5 en alguna posición (punto medio)
 const pos=s5.length-String(p).length+1;if(pos>=1&&pos<s5.length)n=+(s5.slice(0,pos)+"5"+s5.slice(pos+1))}
@@ -142,27 +142,33 @@ demoT.innerHTML=`<tr><th colspan="3" class="z">Zahl des Tages = ${n}</th></tr>`+
 demoNote.innerHTML=`<b>Truco:</b> la cifra <span class="dg">subrayada</span> es la posición que redondeas y la cifra <span class="dr">naranja</span> es la de su <b>derecha</b>. 0–4 → se queda; 5–9 → sube 1. Todo lo de la derecha se vuelve 0. Si no hay cifra (número pequeño), cuenta como 0.<br>💡 ${explain("H",n)}`}
 demo(8237);
 // Practicar
-let pN,pScoreV=0,pStreakV=0,pDone=false,pBusy=false;
-function startPractice(){if(!sel().length){alert("Elige al menos un grupo de números.");return}show("practice");newPractice()}
+let pN,pScoreV=0,pStreakV=0,pDone=false,pAwarded=false,pLastNext=0;
+function startPractice(){if(!sel().length){alert("Elige al menos un grupo de números.");return}pScoreV=0;pStreakV=0;pScore.textContent=0;pStreak.textContent=0;pN=undefined;show("practice");newPractice()}
 function newPractice(){
-  let n,guard=0;do{n=randZahl();guard++}while(n===pN&&guard<30);
-  pN=n;pDone=false;pBusy=false;pFb.textContent="";pFb.className="fb";
+  // Reiniciar estado y botones ANTES de cualquier trabajo que pueda fallar
+  pDone=false;pAwarded=false;pFb.textContent="";pFb.className="fb";
   pCheck.disabled=false;
-  const next=document.getElementById("pNext");if(next){next.className="btn blue";next.textContent="➡️ Siguiente"}
+  const next=document.getElementById("pNext");if(next){next.className="btn blue";next.textContent="➡️ Siguiente";next.blur()}
+  let n,guard=0;do{n=randZahl();guard++}while(n===pN&&guard<30);
+  pN=n;
   pT.innerHTML=`<tr><th colspan="3" class="z" style="font-size:1.5rem">Zahl des Tages = ${pN}</th></tr>`+HEAD+PL.map(([k])=>`<tr><td>${k}</td><td style="font-size:1rem">${PN[k]}</td><td id="c_${k}"><input type="number" inputmode="numeric" aria-label="${k}" id="i_${k}"></td></tr>`).join("");
   setTimeout(()=>{const i=document.getElementById("i_Z");if(i)i.focus()},50);
 }
-function goNextPractice(){if(pBusy)return;pBusy=true;newPractice()}
-function checkPractice(){if(pDone||pBusy)return;let first=null,ok=0;
-PL.forEach(([k,p])=>{const r=roundTo(pN,p),td=document.getElementById("c_"+k),v=document.getElementById("i_"+k).value.trim();
+function goNextPractice(){const t=Date.now();if(t-pLastNext<400)return;pLastNext=t;
+  try{newPractice()}catch(err){console.error(err);try{pDone=false;pCheck.disabled=false}catch(e){}}
+}
+function checkPractice(){if(pDone)return;let first=null,ok=0;
+const inputs=[...pT.querySelectorAll("input")],empty=inputs.find(i=>i.value.trim()==="");
+if(empty){pFb.className="fb bad";pFb.textContent="Completa las 5 casillas antes de comprobar.";empty.focus();return}
+pDone=true;pCheck.disabled=true;PL.forEach(([k,p])=>{const r=roundTo(pN,p),td=document.getElementById("c_"+k),v=document.getElementById("i_"+k).value.trim();
 td.querySelector(".cv")?.remove();
 if(v!==""&&+v===r){td.className="ok";ok++}else{td.className="no";td.insertAdjacentHTML("beforeend",`<span class="cv">${r}</span>`);if(!first)first=k}});
-pDone=true;pCheck.disabled=true;
-if(!first){pScoreV++;pStreakV++;pFb.className="fb good";pFb.textContent=`🎉 ¡Excelente, ${NM()}! Todo correcto.`}
-else{pStreakV=0;pFb.className="fb bad";pFb.innerHTML=`${ok} de 5 bien. 💡 ${explain(first,pN)}`}
+if(!first){if(!pAwarded){pAwarded=true;pScoreV++;pStreakV++}pFb.className="fb good";pFb.textContent=`🎉 ¡Excelente, ${NM()}! Todo correcto.`}
+else{pStreakV=0;pFb.className="fb bad";pFb.innerHTML=`${ok} de 5 casillas bien. 💡 ${explain(first,pN)}`}
 pScore.textContent=pScoreV;pStreak.textContent=pStreakV;
 const next=document.getElementById("pNext");if(next){next.className="btn green";next.textContent="➡️ Siguiente número";setTimeout(()=>next.focus(),30)}
 }
+// Enter: siguiente campo vacío; comprobar solo con todo lleno; tras comprobar, siguiente número
 pT.addEventListener("keydown",e=>{
   if(e.key!=="Enter")return;
   e.preventDefault();
