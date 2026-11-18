@@ -21,7 +21,7 @@ table.nb td{text-align:center;font-size:1.3rem;font-weight:700;background:#eef1f
 table.nb input{width:100%;font-size:1.25rem;font-weight:700;text-align:center;border:2px solid #9bb;border-radius:8px;padding:8px 2px}
 td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{display:block;font-size:.95rem;color:#c7362b}
 .stats{display:flex;justify-content:space-around;font-size:1.15rem;font-weight:700;flex-wrap:wrap;gap:6px}
-.fb{min-height:2.2em;text-align:center;font-size:1.25rem;font-weight:700;margin-top:8px}.good{color:#1a8a4a}.bad{color:#c7362b}
+.fb{min-height:2.2em;text-align:center;font-size:1.25rem;font-weight:700;margin-top:8px}.good{color:#1a8a4a}.bad{color:#c7362b}.fmt{color:#1f4e79}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}.tab{background:#eef1f6;color:#1f2a44;flex:1 1 70px}.tab[aria-pressed=true]{background:#7b4fd6;color:#fff}
 .flash{background:#f6f2ff;border-radius:16px;padding:14px;margin-top:10px;font-size:1.15rem}.flash b.big{font-size:2rem;color:#7b4fd6}
 .q{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:800;text-align:center;margin:10px 0}
@@ -50,7 +50,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 .mmDemoOut{font-size:1.2rem;font-weight:700;text-align:center;margin-top:8px}
 </style></head><body>
 <header><h1>🎯 Matemáticas: Runden</h1>
-<p class="ver">v1.1.0</p>
+<p class="ver">v1.1.1</p>
 <p>Redondear · <b>kleinste</b> / <b>größte Zahl</b> · <b>genau</b> o <b>gerundet</b></p>
 <p>¡Hola, <span class="nm">amiguito</span>! <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar nombre</a></p></header>
 <main>
@@ -119,11 +119,11 @@ Todos los números del 350 al 449 se redondean a 400.
 <p>Algunos números son <b>genau</b> (exactos): no se puede cambiar ni una cifra. Otros son <b>gerundet</b> (redondeados o aproximados).</p>
 <p><b>Genau</b>, casi siempre:</p>
 <ul>
-<li>Telefonnummer, Hausnummer, Zimmernummer, Rückennummer, Liniennummer</li>
-<li>un <b>Rekord</b> (p. ej. 5,06 m im Stabhochsprung)</li>
+<li>Telefonnummer, Hausnummer, Zimmernummer, Rückennummer, Liniennummer — aunque el número termine en ceros (Hausnummer 200, Zimmer 300, Buslinie 100)</li>
+<li>un <b>Rekord</b> (p. ej. 5,06 m im Stabhochsprung der Frauen)</li>
 <li>Datum / Geburtstag</li>
 <li>precios de un Kassenbon o una medida de báscula</li>
-<li>un recuento preciso que no es un número redondo, p. ej. 387 Konzertbesucher</li>
+<li>un recuento preciso, p. ej. 387 Konzertbesucher o 124 Stufen</li>
 </ul>
 <p><b>Gerundet</b>, cuando:</p>
 <ul>
@@ -134,7 +134,8 @@ Todos los números del 350 al 449 se redondean a 400.
 <div class="exbox">
 <b>Ejemplos genau:</b><br>
 Telefonnummer 549 831 → <b>genau</b><br>
-Rekord im Stabhochsprung Herren 5,06 m → <b>genau</b><br>
+Rekord im Stabhochsprung der Frauen 5,06 m → <b>genau</b><br>
+Hausnummer 200 → <b>genau</b> (es el número de la casa, aunque termine en ceros)<br>
 Konzertbesucher 387 → <b>genau</b> (se contó exactamente)
 </div>
 <div class="exbox">
@@ -142,7 +143,7 @@ Konzertbesucher 387 → <b>genau</b> (se contó exactamente)
 ca. 8 000 000 Einwohner → <b>gerundet</b><br>
 etwa 300 Zuschauer → <b>gerundet</b><br>
 ungefähr 1 000 km → <b>gerundet</b><br>
-Deutschland hat 80 000 000 Einwohner → <b>gerundet</b> (número redondo de habitantes)
+Deutschland hat 84 000 000 Einwohner → <b>gerundet</b> (número redondo de habitantes)
 </div>
 </div>
 <div class="row"><button class="btn gray" onclick="show('home')">🏠 Inicio</button></div>
@@ -193,7 +194,7 @@ if(window.ASK_NAME&&NM()=="amiguito")cambiarNombre();
 </script>
 <script>
 window.ASK_NAME=true;
-const VERSION="1.1.0";
+const VERSION="1.1.1";
 const PL=[["Z",10],["H",100],["T",1000],["ZT",10000],["HT",100000]];
 const INFO={
 Z:["Zehner","Decenas (10)","Mira las <b>unidades</b>. 0–4: la decena se queda; 5–9: la decena sube 1. Las unidades se vuelven 0.","8237 → <b>8240</b> (unidades 7 ≥ 5, sube). 8233 → 8230."],
@@ -212,7 +213,7 @@ return `Redondear ${n} a ${PN[k]} (${k}): la cifra de ${RN[k]} es <b>${d}</b>. $
 function mark(n,k){const s=String(n),p=String(pv(k)).length-1,i=s.length-p,j=i-1;
 return [...s].map((c,x)=>x===i?`<span class="dr">${c}</span>`:x===j?`<span class="dg">${c}</span>`:c).join("")}
 function fmt(n){const neg=n<0;n=Math.abs(n);return (neg?"-":"")+String(n).replace(/\B(?=(\d{3})+(?!\d))/g," ")}
-function parseNum(s){if(s==null)return NaN;const t=String(s).trim().replace(/[\s\u00A0\u202F.]/g,"");if(!/^\d+$/.test(t))return NaN;return +t}
+const NUM_FMT="Revisa el formato: escribe números enteros. Los millares van con espacios o con puntos en grupos de 3, por ejemplo 12 300 o 12.300. No uses comas.";function parseNum(s){if(s==null)return NaN;const t=String(s).trim().replace(/[\u00A0\u202F]/g," ");if(!t)return NaN;if(/^\d+$/.test(t))return +t;if(/^\d{1,3}( \d{3})+$/.test(t))return +t.replace(/ /g,"");if(/^\d{1,3}(\.\d{3})+$/.test(t))return +t.replace(/\./g,"");return NaN}
 function rangeFor(R,p){return {min:R-p/2,max:R+p/2-1}}
 function explainRange(k,R){const p=pv(k),rg=rangeFor(R,p);
 return `Si ${fmt(R)} está redondeado a ${GN[k]} (p = ${fmt(p)}), la <b>kleinste Zahl</b> es ${fmt(R)} − ${fmt(p/2)} = <b>${fmt(rg.min)}</b> y la <b>größte Zahl</b> es ${fmt(R)} + ${fmt(p/2-1)} = <b>${fmt(rg.max)}</b>. Todos los números de ${fmt(rg.min)} a ${fmt(rg.max)} se redondean a ${fmt(R)}.`}
@@ -225,25 +226,25 @@ const MM_PLACES={
 };
 const EXACT_BANK=[
 {id:"g1",de:"Telefonnummer: 549 831",ans:"genau",es:"Un número de teléfono es exacto: si cambia una cifra, ya no llama a la misma persona."},
-{id:"g2",de:"Meine Telefonnummer ist 2264 8831",ans:"genau",es:"La telefonnummer es siempre genau: cada cifra importa."},
+{id:"g2",de:"Meine Telefonnummer ist 2264 8831",ans:"genau",es:"La Telefonnummer es siempre genau: cada cifra importa."},
 {id:"g3",de:"Hausnummer 27",ans:"genau",es:"Una Hausnummer es exacta: la casa 27 no es la 26 ni la 30."},
 {id:"g4",de:"Die Hausnummer ist 108",ans:"genau",es:"El número de la casa es genau, aunque sea grande."},
-{id:"g5",de:"Rekord im Stabhochsprung Herren: 5,06 m",ans:"genau",es:"Un récord deportivo se mide con exactitud. 5,06 m es genau."},
+{id:"g5",de:"Rekord im Stabhochsprung der Frauen: 5,06 m",ans:"genau",es:"Un récord deportivo se mide con exactitud. El de las Frauen, 5,06 m, es genau."},
 {id:"g6",de:"Der Weltrekord im 100-Meter-Lauf der Männer ist 9,58 s",ans:"genau",es:"Un récord mundial de tiempo es una medida exacta, no un redondeo."},
 {id:"g7",de:"Geburtsdatum: 12.03.2017",ans:"genau",es:"Una fecha de nacimiento es exacta: el día no se redondea."},
-{id:"g8",de:"Heute ist der 18. November 2026",ans:"genau",es:"La fecha de hoy es genau, no una aproximación."},
+{id:"g8",de:"Am 18. November 2017 wurde Luis geboren",ans:"genau",es:"Una fecha de nacimiento es exacta: el día no se redondea."},
 {id:"g9",de:"Kassenbon: 3,49 €",ans:"genau",es:"El precio de un ticket (Kassenbon) es exacto, hasta el céntimo."},
 {id:"g10",de:"Das Paket wiegt laut Waage 1,37 kg",ans:"genau",es:"Es el peso que marca la báscula, una medida exacta."},
 {id:"g11",de:"Das Buch hat 128 Seiten",ans:"genau",es:"El número de páginas de un libro concreto se cuenta exactamente."},
-{id:"g12",de:"Klassenzimmer Nummer 12",ans:"genau",es:"El número del aula es wie eine Hausnummer: siempre genau."},
+{id:"g12",de:"Klassenzimmer Nummer 12",ans:"genau",es:"El número del aula es como una Hausnummer: siempre genau."},
 {id:"g13",de:"Die Rückennummer des Spielers ist 7",ans:"genau",es:"El número de la camiseta es un identificador exacto, no un redondeo."},
 {id:"g14",de:"Die Buslinie 42 fährt zum Markt",ans:"genau",es:"El número de la línea de bus es exacto."},
-{id:"g15",de:"Die Schuhgröße ist 34",ans:"genau",es:"La talla de zapato es un valor exacto de la etiqueta."},
+{id:"g15",de:"Die Eintrittskarte hat die Nummer 34",ans:"genau",es:"El número de la entrada es un código exacto, no un redondeo."},
 {id:"g16",de:"Beim Konzert waren 387 Besucher",ans:"genau",es:"387 no es un número redondo: se contó exactamente a los visitantes."},
 {id:"g17",de:"Im Zoo leben 1 242 Tiere",ans:"genau",es:"1 242 es un recuento preciso, no un número redondo."},
-{id:"g18",de:"Der Turm ist 124 m hoch",ans:"genau",es:"124 m es una altura medida, no un número redondo típico."},
+{id:"g18",de:"Der Turm hat 124 Stufen",ans:"genau",es:"124 escalones es un recuento preciso, no una medida redondeada."},
 {id:"g19",de:"Der PIN-Code lautet 3914",ans:"genau",es:"Un código PIN es exacto: si cambia una cifra, ya no funciona."},
-{id:"g20",de:"Das Auto hat das Kennzeichen SS 4721",ans:"genau",es:"La matrícula es un código exacto, no un número redondeado."},
+{id:"g20",de:"Das Auto hat das Kennzeichen B-KL 4721",ans:"genau",es:"La matrícula es un código exacto, no un número redondeado."},
 {id:"r1",de:"Die Stadt hat ca. 8 000 000 Einwohner",ans:"gerundet",es:"La palabra ca. (circa) indica que el número de habitantes está redondeado."},
 {id:"r2",de:"Es kamen etwa 300 Zuschauer",ans:"gerundet",es:"etwa significa «aproximadamente». 300 Zuschauer está gerundet."},
 {id:"r3",de:"Die Entfernung beträgt ungefähr 1 000 km",ans:"gerundet",es:"ungefähr significa «más o menos». Es una distancia redondeada."},
@@ -256,18 +257,28 @@ const EXACT_BANK=[
 {id:"r10",de:"Das Auto kostet ungefähr 15 000 €",ans:"gerundet",es:"ungefähr 15 000 € es un precio redondeado, no el céntimo exacto."},
 {id:"r11",de:"Die Klasse hat ca. 30 Schüler",ans:"gerundet",es:"ca. 30 enseña que no es un recuento exacto, sino un número redondo."},
 {id:"r12",de:"Der Weg zur Schule ist etwa 2 km lang",ans:"gerundet",es:"etwa 2 km es una distancia aproximada."},
-{id:"r13",de:"Deutschland hat 80 000 000 Einwohner",ans:"gerundet",es:"80 000 000 es un número redondo de habitantes: la población no se cuenta tan exacta."},
+{id:"r13",de:"Deutschland hat 84 000 000 Einwohner",ans:"gerundet",es:"84 000 000 es un número redondo de habitantes: la población no se cuenta tan exacta."},
 {id:"r14",de:"Die Entfernung von San Salvador nach Berlin beträgt 10 000 km",ans:"gerundet",es:"10 000 km es un número redondo para una distancia tan grande: está gerundet."},
 {id:"r15",de:"Der Mond ist 400 000 km von der Erde entfernt",ans:"gerundet",es:"400 000 km es una distancia enorme en un número redondo: está aproximada."},
 {id:"r16",de:"Die Pyramiden von Giza sind 4 500 Jahre alt",ans:"gerundet",es:"La edad de las pirámides se da en un número redondo de años: está gerundet."},
-{id:"r17",de:"Der Pazifische Ozean ist 160 000 000 km² groß",ans:"gerundet",es:"El área de un océano no se mide al km² exacto; 160 000 000 es un número redondo."},
+{id:"r17",de:"Der Pazifische Ozean ist 165 000 000 km² groß",ans:"gerundet",es:"El área de un océano no se mide al km² exacto; 165 000 000 es un número redondo."},
 {id:"r18",de:"Die chinesische Mauer ist 21 000 km lang",ans:"gerundet",es:"21 000 km es una cifra redonda de una longitud que no se mide metro a metro."},
 {id:"r19",de:"El Salvador hat 6 000 000 Einwohner",ans:"gerundet",es:"6 000 000 Einwohner es un número redondo de población, no un censo exacto."},
-{id:"r20",de:"In der Stadt wohnen rund 40 000 Menschen",ans:"gerundet",es:"rund 40 000 Menschen indica una cantidad aproximada de habitantes."}
+{id:"r20",de:"In der Stadt wohnen rund 40 000 Menschen",ans:"gerundet",es:"rund 40 000 Menschen indica una cantidad aproximada de habitantes."},
+{id:"g21",de:"Hausnummer 200",ans:"genau",es:"Una Hausnummer es exacta aunque termine en ceros: la casa 200 no es la 199 ni la 201."},
+{id:"g22",de:"Zimmer 300",ans:"genau",es:"El número de la habitación es un identificador exacto, como una Hausnummer."},
+{id:"g23",de:"Die Buslinie 100 fährt zum Bahnhof",ans:"genau",es:"El número de la línea de bus es exacto, aunque sea un 100 redondo."},
+{id:"r21",de:"Frankreich hat 70 000 000 Einwohner",ans:"gerundet",es:"70 000 000 es un número redondo de habitantes: la población no se cuenta tan exacta."},
+{id:"r22",de:"Der Nil ist 6 700 km lang",ans:"gerundet",es:"6 700 km es una longitud en número redondo: el Nilo no se midió al kilómetro exacto."},
+{id:"r23",de:"In Europa leben 750 000 000 Menschen",ans:"gerundet",es:"750 000 000 es un número redondo de habitantes, no un censo exacto."}
 ];
 const CK="aleman_check_runden",BK="runden_best";
+const BK_MODE={round:"runden_best",minmax:"runden_best_minmax",exact:"runden_best_exact"};
 let currentMode="round";
-function getChecks(){try{return JSON.parse(localStorage.getItem(CK))||[]}catch(e){return[]}}
+function getChecks(){try{const v=JSON.parse(localStorage.getItem(CK));return Array.isArray(v)?v.filter(x=>typeof x==="string"):[]}catch(e){return[]}}
+function bestKey(mode){return BK_MODE[mode]||BK}
+function getBest(mode){return +localStorage.getItem(bestKey(mode||"round"))||0}
+function setBest(mode,v){localStorage.setItem(bestKey(mode),String(v))}
 function modeLabel(id){return MODES.find(m=>m[0]===id)[1]}
 function renderModes(){const c=getChecks();
 modes.innerHTML=MODES.map(([id,title,desc])=>{
@@ -282,7 +293,8 @@ function updateNumPick(){
   else{note.textContent=currentMode==="minmax"?"Los grupos de cifras sirven para elegir qué tan grande es la gerundete Zahl. El lugar (Z, H, T…) se elige solo.":"";box.classList.remove("dim")}
 }
 function renderTopics(){const c=getChecks();topics.innerHTML=TOPICS.map(t=>`<label><input type="checkbox" value="${t[0]}" ${(window._sel||["3c","4c","5c"]).includes(t[0])?"checked":""}> ${t[1]} <span class="ck">${c.includes(t[0])?"✔":""}</span></label>`).join("");
-const b=+localStorage.getItem(BK)||0;best.textContent=b?`🏆 Mejor puntaje en el Desafío: ${b}`:"🏆 Aún no tienes récord. ¡Juega el Desafío!";
+const rec=[["round","Redondear"],["minmax","Menor y mayor"],["exact","Exacto o gerundet"]].map(([id,lab])=>[id,lab,getBest(id)]);
+best.textContent=rec.some(r=>r[2])?("🏆 Mejor en el Desafío: "+rec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🏆 Aún no tienes récord. ¡Juega el Desafío!";
 const parts=[];
 const dom=TOPICS.filter(t=>c.includes(t[0])).map(t=>t[1]);
 if(dom.length)parts.push("Redondear: "+dom.join(", "));
@@ -321,7 +333,6 @@ function show(id){["home","study","practice","challenge"].forEach(s=>document.ge
 // Estudiar
 modeTabs.innerHTML=MODES.map(([id,title])=>`<button class="tab" data-study="${id}" aria-pressed="false" onclick="openStudy('${id}')">${title}</button>`).join("");
 function openStudy(id){
-  currentMode=id;
   modeTabs.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-pressed",b.getAttribute("data-study")===id));
   roundStudy.classList.toggle("hidden",id!=="round");
   mmStudy.classList.toggle("hidden",id!=="minmax");
@@ -355,7 +366,7 @@ function startPractice(){
   pScoreV=0;pStreakV=0;pScore.textContent=0;pStreak.textContent=0;pN=undefined;pItem=null;
   pScoreLbl.textContent=currentMode==="round"?"Tablas correctas":"Respuestas correctas";
   if(currentMode==="round")pIntro.innerHTML="Redondea la <b>Zahl des Tages</b> en cada fila. 👉 Mira la cifra de la derecha.";
-  else if(currentMode==="minmax")pIntro.innerHTML="La cifra ya está redondeada (<b>gerundete Zahl</b>). Escribe la <b>kleinste Zahl</b> y la <b>größte Zahl</b>. Puedes usar espacios o puntos de millar.";
+  else if(currentMode==="minmax")pIntro.innerHTML="La cifra ya está redondeada (<b>gerundete Zahl</b>). Escribe la <b>kleinste Zahl</b> y la <b>größte Zahl</b>. Los millares van con espacios o puntos en grupos de 3 (12 300 o 12.300).";
   else pIntro.innerHTML="Lee la situación y elige si el número es <b>genau</b> (exacto) o <b>gerundet</b> (redondeado).";
   show("practice");newPractice()}
 function renderRoundTable(){
@@ -439,6 +450,7 @@ function checkMinmax(){
   if(!a||!b)return;
   if(a.value.trim()===""||b.value.trim()===""){pFb.className="fb bad";pFb.textContent="Escribe la kleinste y la größte Zahl."; (a.value.trim()===""?a:b).focus();return}
   const vmin=parseNum(a.value),vmax=parseNum(b.value);
+  if(!Number.isFinite(vmin)||!Number.isFinite(vmax)){pFb.className="fb fmt";pFb.textContent=NUM_FMT;(Number.isFinite(vmin)?b:a).focus();return}
   pDone=true;pCheck.disabled=true;
   const ok=vmin===pItem.min&&vmax===pItem.max;
   a.style.background=vmin===pItem.min?"#c9f2d6":"#ffd3cc";
@@ -527,7 +539,9 @@ dForm.onsubmit=e=>{
   if(dMode==="minmax"){
     const a=document.getElementById("dMin"),b=document.getElementById("dMax");
     if(!a||!b||a.value.trim()===""||b.value.trim()==="")return;
-    const ok=parseNum(a.value)===dItem.min&&parseNum(b.value)===dItem.max;
+    const vmin=parseNum(a.value),vmax=parseNum(b.value);
+    if(!Number.isFinite(vmin)||!Number.isFinite(vmax)){dFb.className="fb fmt";dFb.textContent=NUM_FMT;return}
+    const ok=vmin===dItem.min&&vmax===dItem.max;
     if(ok){dS++;dSt++;dFb.className="fb good";dFb.textContent="✅ ¡Bien!"}
     else{dE++;dSt=0;dFb.className="fb bad";dFb.innerHTML="❌ "+explainRange(dItem.k,dItem.R)}
     updD();nextD();return;
@@ -550,8 +564,9 @@ function finish(){
   clearInterval(dTim);
   dLeft=0;updD();
   dPlay.classList.add("hidden");dAgain.classList.remove("hidden");
-  const b=+localStorage.getItem(BK)||0;let msg=`⏰ ¡Tiempo! ${NM()}, hiciste ${dS} puntos con ${dE} errores.`;
-  if(dS>b){localStorage.setItem(BK,dS);msg+=" 🏆 ¡Nuevo récord!"}
+  const pts=dS===1?"punto":"puntos",errs=dE===1?"error":"errores";
+  const b=getBest(dMode);let msg=`⏰ ¡Tiempo! ${NM()}, hiciste ${dS} ${pts} con ${dE} ${errs}.`;
+  if(dS>b){setBest(dMode,dS);msg+=" 🏆 ¡Nuevo récord!"}
   if(dS>=13&&dE===0){
     const c=new Set(getChecks());
     if(dMode==="round")dSel.forEach(t=>c.add(t));
@@ -567,8 +582,8 @@ openStudy("round");
 if(new URLSearchParams(location.search).has("test")){
   window.__TEST__=function(){
     return {
-      VERSION,CK,BK,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,
-      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,
+      VERSION,CK,BK,BK_MODE,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,NUM_FMT,
+      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,
       get mode(){return currentMode},
       setMode,startPractice,checkPractice,chooseExact,goNextPractice,startChallenge,finish,endChallenge,stopChallenge,
       get pScore(){return pScoreV}, get pStreak(){return pStreakV}, get pDone(){return pDone},
@@ -579,9 +594,9 @@ if(new URLSearchParams(location.search).has("test")){
       forceExact(id){const it=EXACT_BANK.find(x=>x.id===id);if(!it)return false;pItem=it;pN=it.id;currentMode="exact";pDone=false;pAwarded=false;pCheck.classList.add("hidden");pFb.textContent="";pFb.className="fb";const nx=document.getElementById("pNext");if(nx){nx.className="btn blue";nx.textContent="➡️ Siguiente"}renderExact();show("practice");return true},
       forceDMinmax(R,k){dMode="minmax";dItem={R,k,p:pv(k),...rangeFor(R,pv(k))};dN=R;dK=k;dFinished=false;setDFieldsMinmax();dQ.className="q-text";dQ.innerHTML=`Die Zahl ist auf <span style="color:#7b4fd6">${GN[k]}</span> gerundet.<br><span class="zt" style="display:block"><span class="ztlab">gerundete Zahl</span><span class="ztn">${fmt(R)}</span></span>`;},
       forceDExact(id){const it=EXACT_BANK.find(x=>x.id===id);if(!it)return false;dMode="exact";dItem=it;dN=it.id;dFinished=false;setDFieldsExact();dQ.innerHTML=esc(it.de);return true},
-      getChecks,getBest(){return +localStorage.getItem(BK)||0},
+      getChecks,
       setChallengeState(score,errors){dS=score;dE=errors;dSt=score;if(typeof updD==='function')updD();return {dS,dE,dFinished}},
-      resetStorage(){try{localStorage.removeItem(CK);localStorage.removeItem(BK)}catch(e){}}
+      resetStorage(){try{localStorage.removeItem(CK);Object.values(BK_MODE).forEach(k=>localStorage.removeItem(k))}catch(e){}}
     };
   };
 }
