@@ -9,7 +9,7 @@ main{max-width:820px;margin:0 auto;padding:10px}.card{background:#fff;border-rad
 h2{margin:.2em 0 .5em;font-size:1.3rem}
 .btn,.tab{font-size:1.2rem;font-weight:700;border:none;border-radius:14px;padding:12px;cursor:pointer;min-height:52px;color:#fff}
 .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.btn{flex:1 1 150px}
-.green{background:#22a35a}.orange{background:#f08a24}.purple{background:#7b4fd6}.gray{background:#6b7280}.blue{background:#2b8de2}
+.green{background:#22a35a}.orange{background:#f08a24}.purple{background:#7b4fd6}.gray{background:#6b7280}.blue{background:#2b8de2}.teal{background:#148a8c}
 button:focus-visible,input:focus-visible{outline:4px solid #ffbf00;outline-offset:2px}
 .topics label{display:flex;align-items:center;gap:10px;font-size:1.25rem;padding:10px;background:#eef1f6;border-radius:14px;margin:6px 0;cursor:pointer}
 .topics input{width:26px;height:26px}.ck{color:#22a35a;font-weight:800}
@@ -50,7 +50,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 .mmDemoOut{font-size:1.2rem;font-weight:700;text-align:center;margin-top:8px}
 </style></head><body>
 <header><h1>🎯 Matemáticas: Runden</h1>
-<p class="ver">v1.1.1</p>
+<p class="ver">v1.2.0</p>
 <p>Redondear · <b>kleinste</b> / <b>größte Zahl</b> · <b>genau</b> o <b>gerundet</b></p>
 <p>¡Hola, <span class="nm">amiguito</span>! <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar nombre</a></p></header>
 <main>
@@ -63,8 +63,10 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 <h2 style="margin-top:14px">2. Elige el ejercicio</h2>
 <div class="modes" id="modes"></div>
 <h2 style="margin-top:14px">3. ¿Qué quieres hacer?</h2>
-<div class="row"><button class="btn purple" onclick="show('study')">📖 Estudiar</button><button class="btn green" onclick="startPractice()">✏️ Practicar</button><button class="btn orange" onclick="startChallenge()">⏱️ Desafío 60 s</button></div>
+<div class="row"><button class="btn purple" onclick="show('study')">📖 Estudiar</button><button class="btn green" onclick="startPractice()">✏️ Practicar</button><button class="btn orange" onclick="startChallenge()">⏱️ Desafío 60 s</button><button class="btn teal" onclick="startUntimed()">🧩 Desafío sin tiempo</button></div>
+<p class="note" id="desafioNote">El Desafío de 60 s da la marca verde (13 o más y cero errores) y guarda el récord. El Desafío sin tiempo son 20 preguntas, sin reloj: ves tus aciertos y errores, pero no cambia el récord ni la marca verde.</p>
 <p id="best" style="font-size:1.1rem;text-align:center"></p>
+<p id="bestUntimed" style="font-size:1.1rem;text-align:center"></p>
 <p id="homeChecks" style="text-align:center;font-size:1.05rem"></p>
 <div class="legend"><b>Leyenda:</b><br>
 <b>Z</b> = Zehner (decenas, 10) · <b>H</b> = Hunderter (centenas, 100) · <b>T</b> = Tausender (unidades de millar, 1000)<br>
@@ -159,13 +161,13 @@ Deutschland hat 84 000 000 Einwohner → <b>gerundet</b> (número redondo de hab
 </section>
 
 <section id="challenge" class="card hidden">
-<h2>⏱️ Desafío 60 s</h2>
-<div class="stats"><span id="timer">⏱️ 60</span><span>⭐ Puntos: <span id="dScore">0</span></span><span>🔥 Racha: <span id="dStreak">0</span></span><span>❌ Errores: <span id="dErr">0</span></span></div>
+<h2 id="dTitle">⏱️ Desafío 60 s</h2>
+<div class="stats"><span id="timer">⏱️ 60</span><span id="dProgress" class="hidden">📋 Pregunta <span id="dProgN">1</span> / <span id="dProgTotal">20</span></span><span>⭐ Puntos: <span id="dScore">0</span></span><span>🔥 Racha: <span id="dStreak">0</span></span><span>❌ Errores: <span id="dErr">0</span></span></div>
 <div id="dPlay"><div id="dQbox"><div class="q" id="dQ"></div></div>
 <form id="dForm"><div id="dFields"><input id="dAns" type="number" inputmode="numeric" autocomplete="off"></div>
 <div class="row" id="dSubmitRow"><button class="btn green" type="submit" id="dSubmit">Comprobar</button></div></form></div>
 <div class="fb" id="dFb"></div>
-<div class="row"><button class="btn orange hidden" id="dAgain" onclick="startChallenge()">🔁 Otra vez</button><button class="btn gray" onclick="stopChallenge();show('home')">🏠 Inicio</button></div>
+<div class="row"><button class="btn orange hidden" id="dAgain" onclick="restartChallenge()">🔁 Otra vez</button><button class="btn gray" onclick="stopChallenge();show('home')">🏠 Inicio</button></div>
 </section>
 </main>
 <script>window.ASK_NAME=true;</script>
@@ -194,7 +196,8 @@ if(window.ASK_NAME&&NM()=="amiguito")cambiarNombre();
 </script>
 <script>
 window.ASK_NAME=true;
-const VERSION="1.1.1";
+const VERSION="1.2.0";
+const UNTIMED_N=20;
 const PL=[["Z",10],["H",100],["T",1000],["ZT",10000],["HT",100000]];
 const INFO={
 Z:["Zehner","Decenas (10)","Mira las <b>unidades</b>. 0–4: la decena se queda; 5–9: la decena sube 1. Las unidades se vuelven 0.","8237 → <b>8240</b> (unidades 7 ≥ 5, sube). 8233 → 8230."],
@@ -274,11 +277,15 @@ const EXACT_BANK=[
 ];
 const CK="aleman_check_runden",BK="runden_best";
 const BK_MODE={round:"runden_best",minmax:"runden_best_minmax",exact:"runden_best_exact"};
+const BK_UNTIMED={round:"runden_best_untimed",minmax:"runden_best_untimed_minmax",exact:"runden_best_untimed_exact"};
 let currentMode="round";
 function getChecks(){try{const v=JSON.parse(localStorage.getItem(CK));return Array.isArray(v)?v.filter(x=>typeof x==="string"):[]}catch(e){return[]}}
 function bestKey(mode){return BK_MODE[mode]||BK}
 function getBest(mode){return +localStorage.getItem(bestKey(mode||"round"))||0}
 function setBest(mode,v){localStorage.setItem(bestKey(mode),String(v))}
+function untimedKey(mode){return BK_UNTIMED[mode]||BK_UNTIMED.round}
+function getUntimedBest(mode){return +localStorage.getItem(untimedKey(mode||"round"))||0}
+function setUntimedBest(mode,v){localStorage.setItem(untimedKey(mode),String(v))}
 function modeLabel(id){return MODES.find(m=>m[0]===id)[1]}
 function renderModes(){const c=getChecks();
 modes.innerHTML=MODES.map(([id,title,desc])=>{
@@ -295,6 +302,9 @@ function updateNumPick(){
 function renderTopics(){const c=getChecks();topics.innerHTML=TOPICS.map(t=>`<label><input type="checkbox" value="${t[0]}" ${(window._sel||["3c","4c","5c"]).includes(t[0])?"checked":""}> ${t[1]} <span class="ck">${c.includes(t[0])?"✔":""}</span></label>`).join("");
 const rec=[["round","Redondear"],["minmax","Menor y mayor"],["exact","Exacto o gerundet"]].map(([id,lab])=>[id,lab,getBest(id)]);
 best.textContent=rec.some(r=>r[2])?("🏆 Mejor en el Desafío: "+rec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🏆 Aún no tienes récord. ¡Juega el Desafío!";
+const urec=[["round","Redondear"],["minmax","Menor y mayor"],["exact","Exacto o gerundet"]].map(([id,lab])=>[id,lab,getUntimedBest(id)]);
+const bu=document.getElementById("bestUntimed");
+if(bu)bu.textContent=urec.some(r=>r[2])?("🧩 Mejor sin tiempo: "+urec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🧩 Aún no tienes mejor marca en el Desafío sin tiempo.";
 const parts=[];
 const dom=TOPICS.filter(t=>c.includes(t[0])).map(t=>t[1]);
 if(dom.length)parts.push("Redondear: "+dom.join(", "));
@@ -475,19 +485,35 @@ function chooseExact(ans){
   const next=document.getElementById("pNext");if(next){next.className="btn green";next.textContent="➡️ Siguiente";setTimeout(()=>next.focus(),30)}
 }
 // Desafío
-let dN,dK,dS,dSt,dE,dLeft,dTim,dSel,dLastK,dFinished=false,dItem=null,dLastId=null,dMode;
-function startChallenge(){
+let dN,dK,dS,dSt,dE,dLeft,dTim,dSel,dLastK,dFinished=false,dItem=null,dLastId=null,dMode,dUntimed=false,dAsked=0,dGoal=0,dQueue=null;
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function untimedGoal(mode){if((mode||currentMode)==="exact")return Math.min(UNTIMED_N,EXACT_BANK.length);return UNTIMED_N}
+function buildUntimedQueue(mode){if(mode==="exact")return shuffle(EXACT_BANK).slice(0,untimedGoal(mode));return null}
+function startChallenge(){beginChallenge(false)}
+function startUntimed(){beginChallenge(true)}
+function restartChallenge(){beginChallenge(!!dUntimed)}
+function beginChallenge(untimed){
   if(currentMode!=="exact"){dSel=sel();if(!dSel.length){alert("Elige al menos un grupo de números.");return}}
   else dSel=["exact"];
   dMode=currentMode;
+  dUntimed=!!untimed;
   show("challenge");
-  dS=dSt=dE=0;dLeft=60;dFinished=false;dItem=null;dLastId=null;dLastK=undefined;
+  dS=dSt=dE=0;dFinished=false;dItem=null;dLastId=null;dLastK=undefined;dAsked=0;
+  dGoal=dUntimed?untimedGoal(dMode):0;
+  dQueue=dUntimed?buildUntimedQueue(dMode):null;
+  dLeft=dUntimed?null:60;
+  const title=document.getElementById("dTitle");
+  if(title)title.textContent=dUntimed?"🧩 Desafío sin tiempo":"⏱️ Desafío 60 s";
+  timer.classList.toggle("hidden",dUntimed);
+  const prog=document.getElementById("dProgress");
+  if(prog)prog.classList.toggle("hidden",!dUntimed);
   updD();dPlay.classList.remove("hidden");dAgain.classList.add("hidden");dFb.textContent="";dFb.className="fb";
   nextD();
-  clearInterval(dTim);dTim=setInterval(()=>{if(dFinished)return;dLeft--;timer.textContent="⏱️ "+dLeft;if(dLeft<=0)finish()},1000)
+  clearInterval(dTim);
+  if(!dUntimed)dTim=setInterval(()=>{if(dFinished)return;dLeft--;timer.textContent="⏱️ "+dLeft;if(dLeft<=0)finish()},1000)
 }
 function stopChallenge(){clearInterval(dTim)}
-function updD(){dScore.textContent=dS;dStreak.textContent=dSt;dErr.textContent=dE;timer.textContent="⏱️ "+dLeft}
+function updD(){dScore.textContent=dS;dStreak.textContent=dSt;dErr.textContent=dE;if(!dUntimed)timer.textContent="⏱️ "+dLeft;else{const n=document.getElementById("dProgN"),t=document.getElementById("dProgTotal");const shown=dFinished?(dAsked||dGoal||UNTIMED_N):(dGoal?Math.min(dAsked+1,dGoal):dAsked+1);if(n)n.textContent=String(shown);if(t)t.textContent=String(dGoal||UNTIMED_N)}}
 function setDFieldsRound(){
   dFields.innerHTML=`<input id="dAns" type="number" inputmode="numeric" autocomplete="off">`;
   dSubmitRow.classList.remove("hidden");
@@ -527,14 +553,21 @@ function nextD(){
     const a=document.getElementById("dMin");if(a)a.focus();
   }else{
     setDFieldsExact();
-    let it,guard=0;do{it=EXACT_BANK[Math.floor(Math.random()*EXACT_BANK.length)];guard++}while(it.id===dLastId&&guard<30);
+    let it;
+    if(dUntimed&&dQueue&&dQueue[dAsked])it=dQueue[dAsked];
+    else{let guard=0;do{it=EXACT_BANK[Math.floor(Math.random()*EXACT_BANK.length)];guard++}while(it.id===dLastId&&guard<30)}
     dItem=it;dLastId=it.id;dN=it.id;dK=null;
     dQ.innerHTML=`${esc(it.de)}<br><small style="font-size:1rem;font-weight:500">Ist diese Zahl genau oder gerundet?</small>`;
   }
 }
+function afterAnswer(){
+  updD();
+  if(dUntimed){dAsked++;if(dAsked>=dGoal){finish();return}}
+  nextD();
+}
 dForm.onsubmit=e=>{
   e.preventDefault();
-  if(dFinished||dLeft<=0)return;
+  if(dFinished||(!dUntimed&&dLeft<=0))return;
   if(dMode==="exact")return;
   if(dMode==="minmax"){
     const a=document.getElementById("dMin"),b=document.getElementById("dMax");
@@ -544,27 +577,37 @@ dForm.onsubmit=e=>{
     const ok=vmin===dItem.min&&vmax===dItem.max;
     if(ok){dS++;dSt++;dFb.className="fb good";dFb.textContent="✅ ¡Bien!"}
     else{dE++;dSt=0;dFb.className="fb bad";dFb.innerHTML="❌ "+explainRange(dItem.k,dItem.R)}
-    updD();nextD();return;
+    afterAnswer();return;
   }
   const inp=document.getElementById("dAns");
   if(!inp||inp.value.trim()==="")return;
   const r=roundTo(dN,pv(dK));
   if(+inp.value===r){dS++;dSt++;dFb.className="fb good";dFb.textContent="✅ ¡Bien!"}else{dE++;dSt=0;dFb.className="fb bad";dFb.innerHTML="❌ "+explain(dK,dN)}
-  updD();nextD()
+  afterAnswer()
 };
 function chooseDExact(ans){
-  if(dFinished||dLeft<=0||dMode!=="exact"||!dItem)return;
+  if(dFinished||(!dUntimed&&dLeft<=0)||dMode!=="exact"||!dItem)return;
   if(ans===dItem.ans){dS++;dSt++;dFb.className="fb good";dFb.textContent="✅ ¡Bien!"}
   else{dE++;dSt=0;dFb.className="fb bad";dFb.innerHTML=`❌ Es <b>${dItem.ans}</b>. ${dItem.es}`}
-  updD();nextD();
+  afterAnswer();
 }
 function finish(){
   if(dFinished)return;
   dFinished=true;
   clearInterval(dTim);
-  dLeft=0;updD();
+  if(!dUntimed)dLeft=0;
+  updD();
   dPlay.classList.add("hidden");dAgain.classList.remove("hidden");
-  const pts=dS===1?"punto":"puntos",errs=dE===1?"error":"errores";
+  const errs=dE===1?"error":"errores";
+  if(dUntimed){
+    const ac=dS===1?"acierto":"aciertos";
+    const b=getUntimedBest(dMode);
+    let msg=`🏁 ¡Terminaste! ${NM()}, hiciste ${dS} ${ac} con ${dE} ${errs}.`;
+    if(dS>b){setUntimedBest(dMode,dS);msg+=" 🏆 ¡Nuevo mejor sin tiempo!"}
+    dFb.className="fb good";dFb.textContent=msg;
+    return;
+  }
+  const pts=dS===1?"punto":"puntos";
   const b=getBest(dMode);let msg=`⏰ ¡Tiempo! ${NM()}, hiciste ${dS} ${pts} con ${dE} ${errs}.`;
   if(dS>b){setBest(dMode,dS);msg+=" 🏆 ¡Nuevo récord!"}
   if(dS>=13&&dE===0){
@@ -582,21 +625,22 @@ openStudy("round");
 if(new URLSearchParams(location.search).has("test")){
   window.__TEST__=function(){
     return {
-      VERSION,CK,BK,BK_MODE,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,NUM_FMT,
-      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,
+      VERSION,CK,BK,BK_MODE,BK_UNTIMED,UNTIMED_N,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,NUM_FMT,
+      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,untimedKey,getUntimedBest,setUntimedBest,untimedGoal,
       get mode(){return currentMode},
-      setMode,startPractice,checkPractice,chooseExact,goNextPractice,startChallenge,finish,endChallenge,stopChallenge,
+      setMode,startPractice,checkPractice,chooseExact,goNextPractice,startChallenge,startUntimed,restartChallenge,beginChallenge,finish,endChallenge,stopChallenge,afterAnswer,
       get pScore(){return pScoreV}, get pStreak(){return pStreakV}, get pDone(){return pDone},
       get pItem(){return pItem}, get pN(){return pN},
       get dScore(){return dS}, get dErr(){return dE}, get dFinished(){return dFinished},
       get dItem(){return dItem}, get dN(){return dN}, get dK(){return dK}, get dMode(){return dMode}, get dLeft(){return dLeft},
+      get dUntimed(){return dUntimed}, get dAsked(){return dAsked}, get dGoal(){return dGoal}, get dQueue(){return dQueue},
       forceMinmax(R,k){pItem={R,k,p:pv(k),...rangeFor(R,pv(k))};pN=R;currentMode="minmax";pDone=false;pAwarded=false;pCheck.classList.remove("hidden");pCheck.disabled=false;pFb.textContent="";pFb.className="fb";const nx=document.getElementById("pNext");if(nx){nx.className="btn blue";nx.textContent="➡️ Siguiente"}renderMinmax();show("practice")},
       forceExact(id){const it=EXACT_BANK.find(x=>x.id===id);if(!it)return false;pItem=it;pN=it.id;currentMode="exact";pDone=false;pAwarded=false;pCheck.classList.add("hidden");pFb.textContent="";pFb.className="fb";const nx=document.getElementById("pNext");if(nx){nx.className="btn blue";nx.textContent="➡️ Siguiente"}renderExact();show("practice");return true},
       forceDMinmax(R,k){dMode="minmax";dItem={R,k,p:pv(k),...rangeFor(R,pv(k))};dN=R;dK=k;dFinished=false;setDFieldsMinmax();dQ.className="q-text";dQ.innerHTML=`Die Zahl ist auf <span style="color:#7b4fd6">${GN[k]}</span> gerundet.<br><span class="zt" style="display:block"><span class="ztlab">gerundete Zahl</span><span class="ztn">${fmt(R)}</span></span>`;},
       forceDExact(id){const it=EXACT_BANK.find(x=>x.id===id);if(!it)return false;dMode="exact";dItem=it;dN=it.id;dFinished=false;setDFieldsExact();dQ.innerHTML=esc(it.de);return true},
       getChecks,
       setChallengeState(score,errors){dS=score;dE=errors;dSt=score;if(typeof updD==='function')updD();return {dS,dE,dFinished}},
-      resetStorage(){try{localStorage.removeItem(CK);Object.values(BK_MODE).forEach(k=>localStorage.removeItem(k))}catch(e){}}
+      resetStorage(){try{localStorage.removeItem(CK);Object.values(BK_MODE).forEach(k=>localStorage.removeItem(k));Object.values(BK_UNTIMED).forEach(k=>localStorage.removeItem(k))}catch(e){}}
     };
   };
 }
