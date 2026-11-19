@@ -50,7 +50,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 .mmDemoOut{font-size:1.2rem;font-weight:700;text-align:center;margin-top:8px}
 </style></head><body>
 <header><h1>🎯 Matemáticas: Runden</h1>
-<p class="ver">v1.2.1</p>
+<p class="ver">v1.2.2</p>
 <p>Redondear · <b>kleinste</b> / <b>größte Zahl</b> · <b>genau</b> o <b>gerundet</b></p>
 <p>¡Hola, <span class="nm">amiguito</span>! <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar nombre</a></p></header>
 <main>
@@ -196,7 +196,7 @@ if(window.ASK_NAME&&NM()=="amiguito")cambiarNombre();
 </script>
 <script>
 window.ASK_NAME=true;
-const VERSION="1.2.1";
+const VERSION="1.2.2";
 const UNTIMED_N=20;
 const PL=[["Z",10],["H",100],["T",1000],["ZT",10000],["HT",100000]];
 const INFO={
@@ -499,7 +499,19 @@ function buildRoundQueue(s){const used=new Set(),q=[];let guard=0,cap=UNTIMED_N*
   while(q.length<UNTIMED_N&&guard++<cap){const n=randZahl(topics),k=PL[Math.floor(Math.random()*PL.length)][0],key=n+"|"+k;if(used.has(key))continue;used.add(key);q.push({n,k})}
   return q}
 function untimedGoal(mode){if((mode||currentMode)==="exact")return Math.min(UNTIMED_N,EXACT_BANK.length);return UNTIMED_N}
-function buildUntimedQueue(mode,s){if(mode==="exact")return shuffle(EXACT_BANK).slice(0,untimedGoal(mode));if(mode==="minmax"){const pool=allMinmaxItems(s);return shuffle(pool).slice(0,Math.min(UNTIMED_N,pool.length))}return buildRoundQueue(s)}
+function buildMinmaxQueue(s){const topics=topicSel(s),strata={},q=[];
+  allMinmaxItems(topics).forEach(it=>{const key=it.topic+"|"+it.k;(strata[key]=strata[key]||[]).push(it)});
+  Object.keys(strata).forEach(k=>{strata[k]=shuffle(strata[k])});
+  let guard=0;
+  while(q.length<UNTIMED_N&&guard++<UNTIMED_N*200){
+    const live=topics.filter(tp=>(MM_PLACES[tp]||[]).some(k=>(strata[tp+"|"+k]||[]).length));if(!live.length)break;
+    const tp=live[Math.floor(Math.random()*live.length)];
+    const ks=(MM_PLACES[tp]||[]).filter(k=>(strata[tp+"|"+k]||[]).length);
+    const k=ks[Math.floor(Math.random()*ks.length)];
+    const it=strata[tp+"|"+k].pop();
+    if(!q.some(x=>x.R===it.R&&x.k===it.k))q.push(it)}
+  return q}
+function buildUntimedQueue(mode,s){if(mode==="exact")return shuffle(EXACT_BANK).slice(0,untimedGoal(mode));if(mode==="minmax")return buildMinmaxQueue(s);return buildRoundQueue(s)}
 function startChallenge(){beginChallenge(false)}
 function startUntimed(){beginChallenge(true)}
 function restartChallenge(){beginChallenge(!!dUntimed)}
@@ -621,8 +633,9 @@ function finish(){
     const b=getUntimedBest(dMode);
     let msg=`🏁 ¡Terminaste! ${NM()}, hiciste ${dS} ${ac} con ${dE} ${errs}.`;
     if(dS>b){setUntimedBest(dMode,dS);msg+=" 🏆 ¡Nueva mejor marca sin tiempo!"}
-    if(!dFb.className||dFb.className==="fb")dFb.className="fb good";
-    dFb.innerHTML=(prev?prev+"<br>":"")+esc(msg);
+    const pc=(dFb.className||"").split(" ").filter(c=>c==="good"||c==="bad"||c==="fmt")[0]||"";
+    dFb.className="fb";
+    dFb.innerHTML=(prev?`<span class="${pc}">${prev}</span><br>`:"")+`<span class="good" id="dEnd">${esc(msg)}</span>`;
     return;
   }
   const pts=dS===1?"punto":"puntos";
@@ -640,11 +653,11 @@ function finish(){
 function endChallenge(){finish()}
 renderTopics();
 openStudy("round");
-if(new URLSearchParams(location.search).has("test")){
+if(new URLSearchParams(location.search).get("test")==="1"){
   window.__TEST__=function(){
     return {
       VERSION,CK,BK,BK_MODE,BK_UNTIMED,UNTIMED_N,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,NUM_FMT,
-      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,untimedKey,clampUntimedBest,getUntimedBest,setUntimedBest,untimedGoal,topicSel,allMinmaxItems,buildRoundQueue,buildUntimedQueue,shuffle,
+      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,untimedKey,clampUntimedBest,getUntimedBest,setUntimedBest,untimedGoal,topicSel,allMinmaxItems,buildRoundQueue,buildMinmaxQueue,buildUntimedQueue,shuffle,
       get mode(){return currentMode},
       setMode,startPractice,checkPractice,chooseExact,goNextPractice,startChallenge,startUntimed,restartChallenge,beginChallenge,finish,endChallenge,stopChallenge,afterAnswer,
       get pScore(){return pScoreV}, get pStreak(){return pStreakV}, get pDone(){return pDone},
