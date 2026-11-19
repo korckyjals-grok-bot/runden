@@ -50,7 +50,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 .mmDemoOut{font-size:1.2rem;font-weight:700;text-align:center;margin-top:8px}
 </style></head><body>
 <header><h1>🎯 Matemáticas: Runden</h1>
-<p class="ver">v1.2.0</p>
+<p class="ver">v1.2.1</p>
 <p>Redondear · <b>kleinste</b> / <b>größte Zahl</b> · <b>genau</b> o <b>gerundet</b></p>
 <p>¡Hola, <span class="nm">amiguito</span>! <a href="#" onclick="cambiarNombre();return false" style="font-size:.9rem;color:#2b8de2;white-space:nowrap">✏️ Cambiar nombre</a></p></header>
 <main>
@@ -64,7 +64,7 @@ td.ok{background:#c9f2d6!important}td.no{background:#ffd3cc!important}.cv{displa
 <div class="modes" id="modes"></div>
 <h2 style="margin-top:14px">3. ¿Qué quieres hacer?</h2>
 <div class="row"><button class="btn purple" onclick="show('study')">📖 Estudiar</button><button class="btn green" onclick="startPractice()">✏️ Practicar</button><button class="btn orange" onclick="startChallenge()">⏱️ Desafío 60 s</button><button class="btn teal" onclick="startUntimed()">🧩 Desafío sin tiempo</button></div>
-<p class="note" id="desafioNote">El Desafío de 60 s da la marca verde (13 o más y cero errores) y guarda el récord. El Desafío sin tiempo son 20 preguntas, sin reloj: ves tus aciertos y errores, pero no cambia el récord ni la marca verde.</p>
+<p class="note" id="desafioNote">El Desafío de 60 s da la marca verde (13 o más y cero errores) y guarda el récord. El Desafío sin tiempo tiene 20 preguntas, sin reloj: ves tus aciertos y errores, pero no cambia el récord ni la marca verde.</p>
 <p id="best" style="font-size:1.1rem;text-align:center"></p>
 <p id="bestUntimed" style="font-size:1.1rem;text-align:center"></p>
 <p id="homeChecks" style="text-align:center;font-size:1.05rem"></p>
@@ -162,7 +162,7 @@ Deutschland hat 84 000 000 Einwohner → <b>gerundet</b> (número redondo de hab
 
 <section id="challenge" class="card hidden">
 <h2 id="dTitle">⏱️ Desafío 60 s</h2>
-<div class="stats"><span id="timer">⏱️ 60</span><span id="dProgress" class="hidden">📋 Pregunta <span id="dProgN">1</span> / <span id="dProgTotal">20</span></span><span>⭐ Puntos: <span id="dScore">0</span></span><span>🔥 Racha: <span id="dStreak">0</span></span><span>❌ Errores: <span id="dErr">0</span></span></div>
+<div class="stats"><span id="timer">⏱️ 60</span><span id="dProgress" class="hidden">📋 Pregunta <span id="dProgN">1</span> / <span id="dProgTotal">20</span></span><span>⭐ <span id="dScoreLab">Puntos</span>: <span id="dScore">0</span></span><span>🔥 Racha: <span id="dStreak">0</span></span><span>❌ Errores: <span id="dErr">0</span></span></div>
 <div id="dPlay"><div id="dQbox"><div class="q" id="dQ"></div></div>
 <form id="dForm"><div id="dFields"><input id="dAns" type="number" inputmode="numeric" autocomplete="off"></div>
 <div class="row" id="dSubmitRow"><button class="btn green" type="submit" id="dSubmit">Comprobar</button></div></form></div>
@@ -196,7 +196,7 @@ if(window.ASK_NAME&&NM()=="amiguito")cambiarNombre();
 </script>
 <script>
 window.ASK_NAME=true;
-const VERSION="1.2.0";
+const VERSION="1.2.1";
 const UNTIMED_N=20;
 const PL=[["Z",10],["H",100],["T",1000],["ZT",10000],["HT",100000]];
 const INFO={
@@ -284,8 +284,9 @@ function bestKey(mode){return BK_MODE[mode]||BK}
 function getBest(mode){return +localStorage.getItem(bestKey(mode||"round"))||0}
 function setBest(mode,v){localStorage.setItem(bestKey(mode),String(v))}
 function untimedKey(mode){return BK_UNTIMED[mode]||BK_UNTIMED.round}
-function getUntimedBest(mode){return +localStorage.getItem(untimedKey(mode||"round"))||0}
-function setUntimedBest(mode,v){localStorage.setItem(untimedKey(mode),String(v))}
+function clampUntimedBest(v){const s=v==null?"":String(v).trim();if(!/^-?\d+$/.test(s))return 0;const n=Number(s);if(!Number.isInteger(n)||n<0||n>UNTIMED_N)return 0;return n}
+function getUntimedBest(mode){return clampUntimedBest(localStorage.getItem(untimedKey(mode||"round")))}
+function setUntimedBest(mode,v){localStorage.setItem(untimedKey(mode),String(clampUntimedBest(v)))}
 function modeLabel(id){return MODES.find(m=>m[0]===id)[1]}
 function renderModes(){const c=getChecks();
 modes.innerHTML=MODES.map(([id,title,desc])=>{
@@ -301,7 +302,7 @@ function updateNumPick(){
 }
 function renderTopics(){const c=getChecks();topics.innerHTML=TOPICS.map(t=>`<label><input type="checkbox" value="${t[0]}" ${(window._sel||["3c","4c","5c"]).includes(t[0])?"checked":""}> ${t[1]} <span class="ck">${c.includes(t[0])?"✔":""}</span></label>`).join("");
 const rec=[["round","Redondear"],["minmax","Menor y mayor"],["exact","Exacto o gerundet"]].map(([id,lab])=>[id,lab,getBest(id)]);
-best.textContent=rec.some(r=>r[2])?("🏆 Mejor en el Desafío: "+rec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🏆 Aún no tienes récord. ¡Juega el Desafío!";
+best.textContent=rec.some(r=>r[2])?("🏆 Mejor en el Desafío: "+rec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🏆 Aún no tienes récord. ¡Juega el Desafío 60 s!";
 const urec=[["round","Redondear"],["minmax","Menor y mayor"],["exact","Exacto o gerundet"]].map(([id,lab])=>[id,lab,getUntimedBest(id)]);
 const bu=document.getElementById("bestUntimed");
 if(bu)bu.textContent=urec.some(r=>r[2])?("🧩 Mejor sin tiempo: "+urec.map(([,lab,v])=>lab+" "+(v||"—")).join(" · ")):"🧩 Aún no tienes mejor marca en el Desafío sin tiempo.";
@@ -310,10 +311,10 @@ const dom=TOPICS.filter(t=>c.includes(t[0])).map(t=>t[1]);
 if(dom.length)parts.push("Redondear: "+dom.join(", "));
 if(c.includes("minmax"))parts.push("Menor y mayor");
 if(c.includes("exact"))parts.push("Exacto o gerundet");
-homeChecks.textContent=parts.length?"✔ Dominado: "+parts.join(" · "):"Gana ✔ con 13 o más puntos y cero errores en el Desafío.";
+homeChecks.textContent=parts.length?"✔ Dominado: "+parts.join(" · "):"Gana ✔ con 13 o más puntos y cero errores en el Desafío 60 s.";
 renderModes()}
 function sel(){const s=[...topics.querySelectorAll("input:checked")].map(i=>i.value);window._sel=s;return s}
-function randZahl(){let s=sel();if(!s.length)s=["3c","4c","5c"];const pick=s[Math.floor(Math.random()*s.length)];const t=TOPICS.find(x=>x[0]===pick)||TOPICS[0];
+function randZahl(s){s=topicSel(s);if(!s.length)s=["3c","4c","5c"];const pick=s[Math.floor(Math.random()*s.length)];const t=TOPICS.find(x=>x[0]===pick)||TOPICS[0];
 let n=t[2]+Math.floor(Math.random()*(t[3]-t[2]+1));
 if(Math.random()<.3){const p=[10,100,1000,10000][Math.floor(Math.random()*4)];
 const s5=String(n);
@@ -324,9 +325,9 @@ function placesForSel(s){
   (s.length?s:["3c","4c","5c"]).forEach(t=>(MM_PLACES[t]||[]).forEach(k=>set.add(k)));
   return [...set];
 }
-function randRounded(){
-  let s=sel();if(!s.length)s=["3c","4c","5c"];
-  const usable=s.filter(t=>(MM_PLACES[t]||[]).length);
+function randRounded(s){
+  const usable=topicSel(s);
+
   const topic=usable[Math.floor(Math.random()*usable.length)]||"3c";
   const places=MM_PLACES[topic];
   const k=places[Math.floor(Math.random()*places.length)];
@@ -487,8 +488,18 @@ function chooseExact(ans){
 // Desafío
 let dN,dK,dS,dSt,dE,dLeft,dTim,dSel,dLastK,dFinished=false,dItem=null,dLastId=null,dMode,dUntimed=false,dAsked=0,dGoal=0,dQueue=null;
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function topicSel(s){if(!s||!s.length){try{s=typeof sel==="function"?sel():null}catch(e){s=null}if(!s||!s.length)s=["3c","4c","5c"]}return s.filter(t=>(MM_PLACES[t]||[]).length)}
+function allMinmaxItems(s){const out=[],seen=new Set();
+  topicSel(s).forEach(topic=>{const places=MM_PLACES[topic]||[],t=TOPICS.find(x=>x[0]===topic);if(!t)return;
+    places.forEach(k=>{const p=pv(k),minR=Math.max(p,Math.ceil(t[2]/p)*p),maxR=Math.floor(t[3]/p)*p;
+      if(maxR<minR)return;
+      for(let R=minR;R<=maxR;R+=p){const rg=rangeFor(R,p);if(!(R%p===0&&R>0&&rg.min>=1&&rg.max<=1000000))continue;const key=R+"|"+k;if(seen.has(key))continue;seen.add(key);out.push({R,k,p,min:rg.min,max:rg.max,topic})}})})
+  return out}
+function buildRoundQueue(s){const used=new Set(),q=[];let guard=0,cap=UNTIMED_N*100;const topics=topicSel(s);
+  while(q.length<UNTIMED_N&&guard++<cap){const n=randZahl(topics),k=PL[Math.floor(Math.random()*PL.length)][0],key=n+"|"+k;if(used.has(key))continue;used.add(key);q.push({n,k})}
+  return q}
 function untimedGoal(mode){if((mode||currentMode)==="exact")return Math.min(UNTIMED_N,EXACT_BANK.length);return UNTIMED_N}
-function buildUntimedQueue(mode){if(mode==="exact")return shuffle(EXACT_BANK).slice(0,untimedGoal(mode));return null}
+function buildUntimedQueue(mode,s){if(mode==="exact")return shuffle(EXACT_BANK).slice(0,untimedGoal(mode));if(mode==="minmax"){const pool=allMinmaxItems(s);return shuffle(pool).slice(0,Math.min(UNTIMED_N,pool.length))}return buildRoundQueue(s)}
 function startChallenge(){beginChallenge(false)}
 function startUntimed(){beginChallenge(true)}
 function restartChallenge(){beginChallenge(!!dUntimed)}
@@ -499,11 +510,13 @@ function beginChallenge(untimed){
   dUntimed=!!untimed;
   show("challenge");
   dS=dSt=dE=0;dFinished=false;dItem=null;dLastId=null;dLastK=undefined;dAsked=0;
-  dGoal=dUntimed?untimedGoal(dMode):0;
-  dQueue=dUntimed?buildUntimedQueue(dMode):null;
+  dQueue=dUntimed?buildUntimedQueue(dMode,dSel):null;
+  dGoal=dUntimed?(dQueue?dQueue.length:0):0;
   dLeft=dUntimed?null:60;
   const title=document.getElementById("dTitle");
   if(title)title.textContent=dUntimed?"🧩 Desafío sin tiempo":"⏱️ Desafío 60 s";
+  const slab=document.getElementById("dScoreLab");
+  if(slab)slab.textContent=dUntimed?"Aciertos":"Puntos";
   timer.classList.toggle("hidden",dUntimed);
   const prog=document.getElementById("dProgress");
   if(prog)prog.classList.toggle("hidden",!dUntimed);
@@ -542,12 +555,15 @@ function nextD(){
   if(dFinished)return;
   if(dMode==="round"){
     setDFieldsRound();
-    dN=randZahl();let k;do{k=PL[Math.floor(Math.random()*5)][0]}while(k===dLastK);dK=dLastK=k;dItem=null;
+    if(dUntimed&&dQueue&&dQueue[dAsked]){dN=dQueue[dAsked].n;dK=dLastK=dQueue[dAsked].k;dItem=null}
+    else{dN=randZahl();let k;do{k=PL[Math.floor(Math.random()*5)][0]}while(k===dLastK);dK=dLastK=k;dItem=null}
     dQ.innerHTML=`Zahl des Tages = ${dN}.<br>¿Cuál es el redondeo a <span style="color:#7b4fd6">${dK}</span>?<br><small style="font-size:1rem;font-weight:400">(${PN[dK]})</small>`;
     const a=document.getElementById("dAns");a.value="";a.focus();
   }else if(dMode==="minmax"){
     setDFieldsMinmax();
-    let it,guard=0;do{it=randRounded();guard++}while(dItem&&it.R===dItem.R&&it.k===dItem.k&&guard<30);
+    let it;
+    if(dUntimed&&dQueue&&dQueue[dAsked])it=dQueue[dAsked];
+    else{let guard=0;do{it=randRounded();guard++}while(dItem&&it.R===dItem.R&&it.k===dItem.k&&guard<30)}
     dItem=it;dN=it.R;dK=it.k;dLastK=it.k;
     dQ.innerHTML=`Die Zahl ist auf <span style="color:#7b4fd6">${GN[it.k]}</span> gerundet.<br><span class="zt" style="display:block"><span class="ztlab">gerundete Zahl</span><span class="ztn">${fmt(it.R)}</span></span><small style="font-size:1rem;font-weight:500">Escribe la kleinste y la größte Zahl.</small>`;
     const a=document.getElementById("dMin");if(a)a.focus();
@@ -600,11 +616,13 @@ function finish(){
   dPlay.classList.add("hidden");dAgain.classList.remove("hidden");
   const errs=dE===1?"error":"errores";
   if(dUntimed){
+    const prev=dFb.innerHTML;
     const ac=dS===1?"acierto":"aciertos";
     const b=getUntimedBest(dMode);
     let msg=`🏁 ¡Terminaste! ${NM()}, hiciste ${dS} ${ac} con ${dE} ${errs}.`;
-    if(dS>b){setUntimedBest(dMode,dS);msg+=" 🏆 ¡Nuevo mejor sin tiempo!"}
-    dFb.className="fb good";dFb.textContent=msg;
+    if(dS>b){setUntimedBest(dMode,dS);msg+=" 🏆 ¡Nueva mejor marca sin tiempo!"}
+    if(!dFb.className||dFb.className==="fb")dFb.className="fb good";
+    dFb.innerHTML=(prev?prev+"<br>":"")+esc(msg);
     return;
   }
   const pts=dS===1?"punto":"puntos";
@@ -626,7 +644,7 @@ if(new URLSearchParams(location.search).has("test")){
   window.__TEST__=function(){
     return {
       VERSION,CK,BK,BK_MODE,BK_UNTIMED,UNTIMED_N,PL,PN,GN,MODES,TOPICS,EXACT_BANK,MM_PLACES,NUM_FMT,
-      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,untimedKey,getUntimedBest,setUntimedBest,untimedGoal,
+      roundTo,pv,fmt,parseNum,rangeFor,explain,explainRange,randZahl,randRounded,placesForSel,getBest,setBest,bestKey,untimedKey,clampUntimedBest,getUntimedBest,setUntimedBest,untimedGoal,topicSel,allMinmaxItems,buildRoundQueue,buildUntimedQueue,shuffle,
       get mode(){return currentMode},
       setMode,startPractice,checkPractice,chooseExact,goNextPractice,startChallenge,startUntimed,restartChallenge,beginChallenge,finish,endChallenge,stopChallenge,afterAnswer,
       get pScore(){return pScoreV}, get pStreak(){return pStreakV}, get pDone(){return pDone},
